@@ -1,6 +1,6 @@
 {
   "name": "react-code-split-ssr",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "React code splitting with SSR",
   "main": "./lib/index.js",
   "scripts": {

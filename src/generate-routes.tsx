@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { matchPath, Route, Switch } from 'react-router-dom'
+import { matchPath, Redirect, Route, Switch } from 'react-router-dom'
 
 export interface IJSXModule {
   default: React.SFC | React.ComponentClass
@@ -12,13 +12,35 @@ export interface ISSRRoute {
   strict?: boolean
 }
 
+export interface IRedirects {
+  from: string
+  to: string | object
+  push?: boolean
+}
+
 export interface IOptions {
   pathname: string
-  routes: ISSRRoute[]
+  routes: ISSRRoute[],
+  redirects: IRedirects[],
   notFoundComp: React.SFC | React.ComponentClass
 }
 
-const generateRoutes = async (options: IOptions): Promise<React.SFC> => {
+const generateRoutes = async (
+  options: IOptions = {
+    pathname: '/',
+    routes: [],
+    redirects: [],
+    notFoundComp: () => <div>404 Not Found</div>,
+  },
+): Promise<React.SFC> => {
+  if (!Array.isArray(options.routes) || options.routes.length === 0) {
+    throw new Error('options.routes must be an non-empty array')
+  }
+
+  if (!Array.isArray(options.redirects)) {
+    throw new Error('options.redirects must be an array')
+  }
+
   const preload = options.routes.find((route) =>
     !!matchPath(options.pathname, {
       path: route.path,
@@ -40,10 +62,12 @@ const generateRoutes = async (options: IOptions): Promise<React.SFC> => {
   return () => {
     return (
       <Switch>
-        {options.routes.map((props, i) => {
-          const routeProps = {...props, component: renderComp(props.path, props.component) }
-          return <Route key={i} {...routeProps} />
-        })}
+        {options.routes.map((props, i) => (
+          <Route key={i} {...props} component={renderComp(props.path, props.component)} />
+        ))}
+        {options.redirects.map((props, i) => (
+          <Redirect key={i} {...props} />
+        ))}
         <Route component={options.notFoundComp} />
       </Switch>
     )
