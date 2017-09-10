@@ -1,0 +1,12 @@
+{
+  "extends": ["tslint:latest", "tslint-react"],
+  "rules": {
+    "curly": [true, "ignore-same-line"],
+    "semicolon": [true, "never"],
+    "quotemark": [true, "single", "jsx-double"],
+    "no-submodule-imports": false,
+    "object-literal-sort-keys": false,
+    "jsx-no-multiline-js": false,
+    "object-literal-key-quotes": [true, "as-needed"]
+  }
+}
