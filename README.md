@@ -7,7 +7,7 @@ React code splitting with server side rendering
 - Server side: Load all components synchronously, then render to string.
 - Client side: Load the initial component before rendering, render the entire screen synchronously, then load the rest of routes asynchronously.
 
-#### Note: This packages is only tested in Meteor project, but technically it can be used in any Nodejs projects.
+#### Note: This packages is only tested in Meteor projects, but technically it can be used in any Nodejs projects. Here is an [example](https://github.com/lhz516/react-code-split-ssr-example) with Meteor
 
 ## Usage
 ```
