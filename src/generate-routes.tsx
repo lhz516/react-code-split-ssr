@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { matchPath, Redirect, Route, Switch } from 'react-router-dom'
+import Bundle from './bundle'
 
 export interface IJSXModule {
   default: React.SFC | React.ComponentClass
@@ -7,7 +8,7 @@ export interface IJSXModule {
 
 export interface ISSRRoute {
   path: string
-  component: () => React.SFCElement<{ mod: Promise<any> }>
+  component: () => React.SFCElement<{ mod: Promise<IJSXModule> }>
   exact?: boolean
   strict?: boolean
 }
@@ -21,8 +22,8 @@ export interface IRedirects {
 export interface IOptions {
   pathname: string
   routes: ISSRRoute[],
-  redirects: IRedirects[],
-  notFoundComp: React.SFC | React.ComponentClass
+  redirects?: IRedirects[],
+  notFoundComp?: () => React.SFCElement<{ mod: Promise<IJSXModule> }>
 }
 
 const generateRoutes = async (
@@ -30,7 +31,6 @@ const generateRoutes = async (
     pathname: '/',
     routes: [],
     redirects: [],
-    notFoundComp: () => <div>404 Not Found</div>,
   },
 ): Promise<React.SFC> => {
   if (!Array.isArray(options.routes) || options.routes.length === 0) {
@@ -50,12 +50,12 @@ const generateRoutes = async (
   )
 
   const preloadedComp: IJSXModule = preload === undefined
-    ? { default: options.notFoundComp }
+    ? await options.notFoundComp().props.mod
     : await preload.component().props.mod
 
   const renderComp = (path: string, bundle: React.SFC) => {
-    if (!preload) return bundle
-    const isSSR = preload.path === path
+    if (!preloadedComp) return bundle
+    const isSSR = (preload && preload.path === path) || (!preload && !path)
     return isSSR ? preloadedComp.default : bundle
   }
 
@@ -68,7 +68,7 @@ const generateRoutes = async (
         {options.redirects.map((props, i) => (
           <Redirect key={i} {...props} />
         ))}
-        <Route component={options.notFoundComp} />
+        <Route component={renderComp(null, options.notFoundComp)} />
       </Switch>
     )
   }

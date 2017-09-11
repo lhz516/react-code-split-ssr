@@ -73,39 +73,39 @@ const Routes = await generateRoutes({
   pathname: req.url
 })
 
-const ServerRoutes = ({url, context = {}}) => {
-  return (
-    <StaticRouter
-      location={url.pathname}
-      context={context}
-    >
-      <Layout>
-        <Routes />
-      </Layout>
-    </StaticRouter>
-  )
-}
+const ServerRoutes = ({url, context = {}}) => (
+  <StaticRouter
+    location={url.pathname}
+    context={context}
+  >
+    <Layout>
+      <Routes />
+    </Layout>
+  </StaticRouter>
+)
 const bodyHtmlString = renderToString(<ServerRoutes url={sink.request.url} />)
-// use bodyHtmlString as need
+// Use bodyHtmlString to where you need
 ```
 
 ## API
 
 ### Bundle - React Component \<Bundle\>
 #### Props
-- mod {Promise<Component>} Required - A `Promised` object which can be resolved to React Component
+- mod {Promise<Component>} ***Required*** - A `Promise` object which can be resolved to React Component
 - loading {Component} - A React Component
 
 ### generateRoutes - Func (object: Options)
 A function that returns a `Promise` object which can be resolved to React Router routes wrapped in `<Switch>`
 
 #### Options
-- routes {objects}[] Required - An array of \<Route\> props object
-- redirects  {objects}[] - An array of \<Redirect\> props object
-- notFoundComp {Component} - An React component for 404 Not Found
-- pathname {string} Required - Pathname for initial loading
+- pathname {string} ***Required*** - Pathname for initial loading
+- routes {objects}[] ***Required*** - An array of `<Route>` props object
+  - `component` field only accepts `() => <Bundle/>`
+  - `location`, `render` fields are currently not supported
+- redirects  {objects}[] - An array of `<Redirect>` props object
+- notFoundComp {Component} - A React component for 404 Not Found, only accepts `() => <Bundle/>`
 
 ## v1.0.0 TODO
 - [ ] SSR correctly for redirected routes
-- [ ] Change `notFoundComp` to a `Promise` object
+- [X] Change `notFoundComp` to `() => <Bundle />`
 - [ ] Add more argument validations
